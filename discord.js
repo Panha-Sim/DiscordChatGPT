@@ -22,25 +22,27 @@ const openai = new OpenAIApi(configuration);
 
 let conversationLog = [];
 client.on("messageCreate", async (message) => {
-
   if (message.author.bot) return;
-  if (message.content.startsWith("!")) return;
   if (message.content === "clear") {
     conversationLog = [];
-    message.reply("converstaionLog clear")
+    message.reply("converstaionLog clear");
     return;
   }
+  if (!message.mentions.has(client.user)) return;
+
   conversationLog.push({
     role: "user",
     content: message.content,
     name: message.author.username,
   });
+
   await message.channel.sendTyping();
   const result = await openai.createChatCompletion({
     model: "gpt-3.5-turbo",
     messages: conversationLog,
   });
   await message.channel.sendTyping();
+
   const response = result.data.choices[0].message.content;
   if (response.length < 1999) {
     message.reply(response);
@@ -50,6 +52,7 @@ client.on("messageCreate", async (message) => {
       message.reply(chunk[i]);
     }
   }
+  
 });
 
 client.login(process.env.TOKEN);
