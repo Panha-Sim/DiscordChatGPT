@@ -22,13 +22,17 @@ const openai = new OpenAIApi(configuration);
 
 let conversationLog = [];
 client.on("messageCreate", async (message) => {
+
   if (message.author.bot) return;
+  if (!message.mentions.has(client.user)) return;
   if (message.content === "clear") {
     conversationLog = [];
     message.reply("converstaionLog clear");
     return;
   }
-  if (!message.mentions.has(client.user)) return;
+  if(conversationLog.length > 15) {
+    conversationLog.shift();
+  };
 
   conversationLog.push({
     role: "user",
